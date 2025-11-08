@@ -1,35 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Warehouse Item Submission</title>
-  <link rel="stylesheet" href="/style.css">
+  <title>Submit Item</title>
 </head>
 <body>
-  <h1>Submit Your Item</h1>
-  <form action="/submit" method="POST">
-    <label>Name:</label>
-    <input type="text" name="name" required><br>
-
-    <label>Description:</label>
-    <textarea name="description" required></textarea><br>
-
-    <label>Storage Choice:</label>
+  <h1>Submit Item</h1>
+  <form method="POST" action="/submit">
+    <label>Name:</label><input type="text" name="name" required><br>
+    <label>Description:</label><input type="text" name="description" required><br>
+    <label>Storage / Delivery:</label>
     <select name="storage_choice">
       <option value="Store">Store</option>
       <option value="Delivery">Delivery</option>
     </select><br>
-
-    <label>Drop-off Time:</label>
-    <select name="dropoff_time">
-      <option value="3 minutes">3 minutes</option>
-      <option value="5 minutes">5 minutes</option>
-    </select><br>
-
+    <label>Drop-off time (3 or 5 minutes):</label>
+    <input type="text" name="dropoff_time" placeholder="3 or 5"><br>
+    <label>Instructions:</label>
+    <input type="text" name="instructions" placeholder="e.g., Go to Dylan's room"><br>
     <button type="submit">Submit</button>
   </form>
-
-<label>Instructions:</label>
-<input type="text" name="instructions" placeholder="Go to Dylan's room"><br>
-
 </body>
 </html>
