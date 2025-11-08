@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Warehouse Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Admin Dashboard</h1>
+  <table border="1" cellpadding="5">
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Storage Choice</th>
+      <th>Drop-off Time</th>
+      <th>Status</th>
+      <th>Location</th>
+      <th>QR</th>
+      <th>Update</th>
+    </tr>
+    <% items.forEach(item => { %>
+      <tr>
+        <td><%= item.id %></td>
+        <td><%= item.name %></td>
+        <td><%= item.description %></td>
+        <td><%= item.storage_choice %></td>
+        <td><%= item.dropoff_time %></td>
+        <td><%= item.status %></td>
+        <td><%= item.location || "" %></td>
+        <td><img src="<%= item.qr %>" width="50"></td>
+        <td>
+          <form action="/update/<%= item.id %>" method="POST">
+            <select name="status">
+              <option value="Submitted" <%= item.status==="Submitted"?"selected":"" %>>Submitted</option>
+              <option value="Stored" <%= item.status==="Stored"?"selected":"" %>>Stored</option>
+              <option value="Out for Delivery" <%= item.status==="Out for Delivery"?"selected":"" %>>Out for Delivery</option>
+              <option value="Delivered" <%= item.status==="Delivered"?"selected":"" %>>Delivered</option>
+            </select>
+            <input type="text" name="location" placeholder="Location" value="<%= item.location %>">
+            <button type="submit">Update</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </table>
+</body>
+</html>
