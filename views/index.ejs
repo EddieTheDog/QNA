@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Warehouse Item Submission</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Submit Your Item</h1>
+  <form action="/submit" method="POST">
+    <label>Name:</label>
+    <input type="text" name="name" required><br>
+
+    <label>Description:</label>
+    <textarea name="description" required></textarea><br>
+
+    <label>Storage Choice:</label>
+    <select name="storage_choice">
+      <option value="Store">Store</option>
+      <option value="Delivery">Delivery</option>
+    </select><br>
+
+    <label>Drop-off Time:</label>
+    <select name="dropoff_time">
+      <option value="3 minutes">3 minutes</option>
+      <option value="5 minutes">5 minutes</option>
+    </select><br>
+
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>
