@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tracking Page</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Tracking for <%= item.name %></h1>
+  <p>Status: <%= item.status %></p>
+  <p>Item ID: <%= item.id %></p>
+  <% if(item.location) { %>
+    <p>Location: <%= item.location %></p>
+  <% } %>
+  <img src="<%= item.qr %>" width="150">
+</body>
+</html>
