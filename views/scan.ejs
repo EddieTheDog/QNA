@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scan Item - Admin</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Scan Item: <%= item.name %></h1>
+  <p>Description: <%= item.description %></p>
+  <p>Storage Choice: <%= item.storage_choice %></p>
+  <p>Status: <%= item.status %></p>
+  <p>Instructions: <%= item.instructions || "No instructions" %></p>
+  <p>Drop-off Time: <%= item.dropoff_time %></p>
+
+  <h2>Countdown to Arrival:</h2>
+  <p id="countdown"></p>
+
+  <h2>Barcode:</h2>
+  <img src="<%= item.qr %>" width="150" alt="Barcode QR">
+
+  <form action="/scan/update/<%= item.id %>" method="POST">
+    <label>Status:</label>
+    <select name="status">
+      <option value="Submitted" <%= item.status==="Submitted"?"selected":"" %>>Submitted</option>
+      <option value="Stored" <%= item.status==="Stored"?"selected":"" %>>Stored</option>
+      <option value="Out for Delivery" <%= item.status==="Out for Delivery"?"selected":"" %>>Out for Delivery</option>
+      <option value="Delivered" <%= item.status==="Delivered"?"selected":"" %>>Delivered</option>
+    </select>
+    <br>
+    <label>Location:</label>
+    <input type="text" name="location" value="<%= item.location %>" placeholder="Storage location">
+    <br>
+    <button type="submit">Update</button>
+  </form>
+
+  <script>
+    // Countdown timer
+    const dropOffMinutes = parseInt("<%= item.dropoff_time.includes('3') ? 3 : 5 %>");
+    const arrivalTime = new Date(new Date().getTime() + dropOffMinutes * 60000);
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = arrivalTime - now;
+      if(diff <= 0) {
+        document.getElementById('countdown').innerText = "Item should be at your door!";
+      } else {
+        const minutes = Math.floor(diff / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        document.getElementById('countdown').innerText = `${minutes}m ${seconds}s`;
+      }
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+</body>
+</html>
