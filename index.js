@@ -4,6 +4,7 @@ import sqlite3 from "sqlite3";
 import QRCode from "qrcode";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,8 +15,12 @@ app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+// Ensure database folder exists
+if (!fs.existsSync(path.join(__dirname, "data"))) fs.mkdirSync(path.join(__dirname, "data"));
+
 // Initialize SQLite database
-const db = new sqlite3.Database("./data.sqlite", (err) => {
+const dbPath = path.join(__dirname, "data/data.sqlite");
+const db = new sqlite3.Database(dbPath, (err) => {
   if (err) console.error("DB error:", err.message);
   else {
     console.log("Connected to SQLite database.");
@@ -35,9 +40,7 @@ const db = new sqlite3.Database("./data.sqlite", (err) => {
 });
 
 // Home page - submission form
-app.get("/", (req, res) => {
-  res.render("index");
-});
+app.get("/", (req, res) => res.render("index"));
 
 // Handle form submission
 app.post("/submit", async (req, res) => {
@@ -46,18 +49,21 @@ app.post("/submit", async (req, res) => {
   const qrData = `ID:${id}`;
   const qrImage = await QRCode.toDataURL(qrData);
 
-  db.run(`INSERT INTO items (name, description, storage_choice, dropoff_time, qr, status, instructions) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  db.run(
+    `INSERT INTO items (name, description, storage_choice, dropoff_time, qr, status, instructions) VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [name, description, storage_choice, dropoff_time, qrImage, "Submitted", instructions],
-    function(err) {
+    function (err) {
       if (err) res.send("Error saving item.");
-      else res.render("tracking", { item: { id, name, qr: qrImage, status: "Submitted", instructions, dropoff_time } });
-    });
+      else
+        res.render("tracking", {
+          item: { id, name, qr: qrImage, status: "Submitted", instructions, dropoff_time },
+        });
+    }
+  );
 });
 
-// Front desk lookup by ID
-app.get("/frontdesk", (req, res) => {
-  res.render("frontdesk", { item: null });
-});
+// Front desk lookup page
+app.get("/frontdesk", (req, res) => res.render("frontdesk", { item: null }));
 
 // Pull item info by ID
 app.post("/frontdesk", (req, res) => {
@@ -71,12 +77,14 @@ app.post("/frontdesk", (req, res) => {
 // Update item from front desk
 app.post("/frontdesk/update/:id", (req, res) => {
   const { status, location, note } = req.body;
-  db.run("UPDATE items SET status = ?, location = ?, note = ? WHERE id = ?",
+  db.run(
+    "UPDATE items SET status = ?, location = ?, note = ? WHERE id = ?",
     [status, location, note, req.params.id],
-    function(err) {
+    function (err) {
       if (err) res.send("Error updating item");
       else res.redirect("/frontdesk");
-    });
+    }
+  );
 });
 
 // Admin dashboard
@@ -87,10 +95,18 @@ app.get("/dashboard", (req, res) => {
   });
 });
 
-// Tracking page
+// Scan page by QR / barcode
+app.get("/scan/:id", (req, res) => {
+  db.get("SELECT * FROM items WHERE id = ?", [req.params.id], (err, item) => {
+    if (err || !item) res.send("Item not found.");
+    else res.render("scan", { item });
+  });
+});
+
+// Tracking page for family
 app.get("/track/:id", (req, res) => {
   db.get("SELECT * FROM items WHERE id = ?", [req.params.id], (err, item) => {
-    if (err || !item) res.send("Item not found");
+    if (err || !item) res.send("Item not found.");
     else res.render("tracking", { item });
   });
 });
