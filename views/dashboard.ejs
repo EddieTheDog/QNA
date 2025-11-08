@@ -3,141 +3,58 @@
 <head>
   <title>Warehouse Dashboard</title>
   <link rel="stylesheet" href="/style.css">
-  <style>
-    .section {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 20px;
-    }
-    .section h2 {
-      margin-top: 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 10px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 5px;
-      text-align: left;
-    }
-    .search-box {
-      margin-bottom: 10px;
-    }
-  </style>
 </head>
 <body>
   <h1>Warehouse Dashboard</h1>
 
-  <!-- Search -->
-  <div class="search-box">
-    <input type="text" id="searchName" placeholder="Search by name">
-    <input type="text" id="searchTime" placeholder="Search by drop-off time">
-    <button onclick="filterQueue()">Search</button>
-    <button onclick="resetQueue()">Reset</button>
-  </div>
-
-  <!-- Incoming / Queue Section -->
-  <div class="section">
+  <div>
     <h2>Incoming / Queue</h2>
-    <table id="incomingTable">
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Drop-off Time</th>
-        <th>Instructions</th>
-        <th>Scan</th>
-      </tr>
-      <% items.filter(item => item.status === "Submitted").forEach(item => { %>
-      <tr>
-        <td><%= item.name %></td>
-        <td><%= item.description %></td>
-        <td><%= item.dropoff_time %></td>
-        <td><%= item.instructions %></td>
-        <td>
-          <a href="/scan/<%= item.id %>">
-            <button>Scan</button>
-          </a>
-        </td>
-      </tr>
+    <table border="1">
+      <tr><th>Name</th><th>Description</th><th>Drop-off Time</th><th>Instructions</th><th>Scan</th></tr>
+      <% items.filter(i => i.status === "Submitted").forEach(item => { %>
+        <tr>
+          <td><%= item.name %></td>
+          <td><%= item.description %></td>
+          <td><%= item.dropoff_time %></td>
+          <td><%= item.instructions %></td>
+          <td><a href="/scan/<%= item.id %>"><button>Scan</button></a></td>
+        </tr>
       <% }) %>
     </table>
   </div>
 
-  <!-- Received Section -->
-  <div class="section">
+  <div>
     <h2>Received / Stored</h2>
-    <table>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Drop-off Time</th>
-        <th>Status</th>
-        <th>Location</th>
-        <th>QR</th>
-      </tr>
-      <% items.filter(item => item.status === "Stored" || item.status === "Out for Delivery").forEach(item => { %>
-      <tr>
-        <td><%= item.name %></td>
-        <td><%= item.description %></td>
-        <td><%= item.dropoff_time %></td>
-        <td><%= item.status %></td>
-        <td><%= item.location %></td>
-        <td><img src="<%= item.qr %>" width="50"></td>
-      </tr>
+    <table border="1">
+      <tr><th>Name</th><th>Description</th><th>Drop-off Time</th><th>Status</th><th>Location</th><th>QR</th></tr>
+      <% items.filter(i => i.status === "Stored" || i.status === "Waiting for Delivery").forEach(item => { %>
+        <tr>
+          <td><%= item.name %></td>
+          <td><%= item.description %></td>
+          <td><%= item.dropoff_time %></td>
+          <td><%= item.status %></td>
+          <td><%= item.location %></td>
+          <td><img src="<%= item.qr %>" width="50"></td>
+        </tr>
       <% }) %>
     </table>
   </div>
 
-  <!-- Delivered Section -->
-  <div class="section">
-    <h2>Delivered / Picked Up</h2>
-    <table>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Drop-off Time</th>
-        <th>Status</th>
-        <th>Location</th>
-        <th>QR</th>
-      </tr>
-      <% items.filter(item => item.status === "Delivered").forEach(item => { %>
-      <tr>
-        <td><%= item.name %></td>
-        <td><%= item.description %></td>
-        <td><%= item.dropoff_time %></td>
-        <td><%= item.status %></td>
-        <td><%= item.location %></td>
-        <td><img src="<%= item.qr %>" width="50"></td>
-      </tr>
+  <div>
+    <h2>Delivered</h2>
+    <table border="1">
+      <tr><th>Name</th><th>Description</th><th>Drop-off Time</th><th>Status</th><th>Location</th><th>QR</th></tr>
+      <% items.filter(i => i.status === "Delivered").forEach(item => { %>
+        <tr>
+          <td><%= item.name %></td>
+          <td><%= item.description %></td>
+          <td><%= item.dropoff_time %></td>
+          <td><%= item.status %></td>
+          <td><%= item.location %></td>
+          <td><img src="<%= item.qr %>" width="50"></td>
+        </tr>
       <% }) %>
     </table>
   </div>
-
-  <script>
-    function filterQueue() {
-      const nameFilter = document.getElementById('searchName').value.toLowerCase();
-      const timeFilter = document.getElementById('searchTime').value.toLowerCase();
-      const table = document.getElementById('incomingTable');
-      const trs = table.getElementsByTagName('tr');
-      for (let i = 1; i < trs.length; i++) {
-        const tds = trs[i].getElementsByTagName('td');
-        const name = tds[0].innerText.toLowerCase();
-        const time = tds[2].innerText.toLowerCase();
-        if ((name.includes(nameFilter) || !nameFilter) && (time.includes(timeFilter) || !timeFilter)) {
-          trs[i].style.display = "";
-        } else {
-          trs[i].style.display = "none";
-        }
-      }
-    }
-
-    function resetQueue() {
-      document.getElementById('searchName').value = "";
-      document.getElementById('searchTime').value = "";
-      filterQueue();
-    }
-  </script>
 </body>
 </html>
