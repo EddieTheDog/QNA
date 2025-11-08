@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Front Desk</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Front Desk - Item Arrival</h1>
+
+  <!-- Search by ID -->
+  <form method="POST" action="/frontdesk">
+    <label>Enter Reservation / QR ID:</label>
+    <input type="text" name="id" required>
+    <button type="submit">Lookup</button>
+  </form>
+
+  <% if(error) { %>
+    <p style="color:red;"><%= error %></p>
+  <% } %>
+
+  <% if(item) { %>
+    <h2>Item: <%= item.name %></h2>
+    <p>Description: <%= item.description %></p>
+    <p>Storage / Delivery: <%= item.storage_choice %></p>
+    <p>Instructions: <%= item.instructions %></p>
+    <p>Drop-off Time: <%= item.dropoff_time %></p>
+    <img src="<%= item.qr %>" width="150">
+
+    <form method="POST" action="/frontdesk/update/<%= item.id %>">
+      <label>Status:</label>
+      <select name="status">
+        <option value="Arrived / Scanned">Arrived / Scanned</option>
+        <option value="Stored">Stored</option>
+        <option value="Waiting for Delivery">Waiting for Delivery</option>
+      </select>
+      <br>
+      <label>Location:</label>
+      <input type="text" name="location" placeholder="e.g., A1, B2" value="<%= item.location %>">
+      <br>
+      <label>Note:</label>
+      <input type="text" name="note" placeholder="Optional note" value="<%= item.note %>">
+      <br>
+      <button type="submit">Update Item</button>
+    </form>
+  <% } %>
+</body>
+</html>
