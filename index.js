@@ -28,7 +28,8 @@ const db = new sqlite3.Database("./data.sqlite", (err) => {
       dropoff_time TEXT,
       qr TEXT,
       status TEXT,
-      location TEXT
+      location TEXT,
+      instructions TEXT
     )`);
   }
 });
@@ -40,19 +41,45 @@ app.get("/", (req, res) => {
 
 // Handle form submission
 app.post("/submit", async (req, res) => {
-  const { name, description, storage_choice, dropoff_time } = req.body;
+  const { name, description, storage_choice, dropoff_time, instructions } = req.body;
   const id = Date.now(); // unique ID for QR
-  const qrData = `ID:${id}|Name:${name}`;
+  const qrData = `ID:${id}`;
   const qrImage = await QRCode.toDataURL(qrData);
 
-  const sql = `INSERT INTO items (name, description, storage_choice, dropoff_time, qr, status)
-               VALUES (?, ?, ?, ?, ?, ?)`;
-  db.run(sql, [name, description, storage_choice, dropoff_time, qrImage, "Submitted"], function(err) {
+  const sql = `INSERT INTO items (name, description, storage_choice, dropoff_time, qr, status, instructions)
+               VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  db.run(sql, [name, description, storage_choice, dropoff_time, qrImage, "Submitted", instructions], function(err) {
     if (err) {
       console.error(err.message);
       res.send("Error saving item.");
     } else {
-      res.render("tracking", { item: { id, name, qr: qrImage, status: "Submitted" } });
+      res.render("tracking", { item: { id, name, qr: qrImage, status: "Submitted", instructions, dropoff_time } });
+    }
+  });
+});
+
+// Admin scan page - open by scanning QR
+app.get("/scan/:id", (req, res) => {
+  const sql = "SELECT * FROM items WHERE id = ?";
+  db.get(sql, [req.params.id], (err, item) => {
+    if (err || !item) {
+      res.send("Item not found.");
+    } else {
+      res.render("scan", { item });
+    }
+  });
+});
+
+// Update item from scan page
+app.post("/scan/update/:id", (req, res) => {
+  const { status, location } = req.body;
+  const sql = "UPDATE items SET status = ?, location = ? WHERE id = ?";
+  db.run(sql, [status, location, req.params.id], function(err) {
+    if (err) {
+      console.error(err.message);
+      res.send("Error updating item.");
+    } else {
+      res.redirect("/dashboard");
     }
   });
 });
@@ -66,20 +93,6 @@ app.get("/dashboard", (req, res) => {
       res.send("Error loading dashboard.");
     } else {
       res.render("dashboard", { items });
-    }
-  });
-});
-
-// Scan QR / update item
-app.post("/update/:id", (req, res) => {
-  const { status, location } = req.body;
-  const sql = "UPDATE items SET status = ?, location = ? WHERE id = ?";
-  db.run(sql, [status, location, req.params.id], function(err) {
-    if (err) {
-      console.error(err.message);
-      res.send("Error updating item.");
-    } else {
-      res.redirect("/dashboard");
     }
   });
 });
